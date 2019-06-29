@@ -96,6 +96,7 @@ var listRegisters = {
 
             listRegisters.paginationStar = parseInt( thisButton.getAttribute('initL') ) ;
 
+            listRegisters.setURLS();
             listRegisters.getDataTable();
             
             //Comportamiento visual del boton
@@ -111,6 +112,7 @@ var listRegisters = {
         this.searchBy       = $('#searchRegisterSelect').val();  
         this.valueSearchBy  = $('#searchRegisterField').val();
         
+        this.setURLS();
         this.getDataTable();
         this.buttons.getCountAllRegisters(); //Cuando obtiene este numero crea los botones de paginacion
         
@@ -125,6 +127,7 @@ var listRegisters = {
         this.valueSearchBy  = '';
         this.url = document.getElementById('catalogName').value;
 
+        this.setURLS();
         this.getDataTable();
         this.buttons.getCountAllRegisters(); //Cuando obtiene este numero crea los botones de paginacion
     }
