@@ -1,112 +1,146 @@
+const URLSERVER = '';
+
 var listRegisters = {
+    url             : '',
+    urlCount        : '',   //Url que devuelve el numero total de registros para crear los botones de paginacion
     paginationStar  : 0,
     paginationStep  : 10,
-    numberOfButtons : 1,     //Mock, se actualiza cuando se reciben los datos ajax
     by              : 'id',
     order           : 'ASC',
     searchBy        : '',
     valueSearchBy   : '',
-    goToRegister : function(thisElement){
-        var idRegister = thisElement.getAttribute('idRegister');
-        var catalog = document.getElementById('catalogName').value;
-        var url = '/'+ catalog +'/edit/' + idRegister;
-        window.open( url ,"_self"); 
+    setURLS         : function(){
+        var urlGetRegisters = document.getElementById('urlGetRegisters');
+        var urlCountAllRegisters = document.getElementById('urlCountAllRegisters');
+
+        if( this.searchBy ){
+            this.urlCount = URLSERVER + urlCountAllRegisters + '?' + this.searchBy + '=' + this.valueSearchBy
+            var searchQuery = '&'+ searchBy +'=' + valueSearchBy 
+        } else{
+            this.urlCount = URLSERVER + urlGetRegisters;
+            var searchQuery = '' 
+        }
+        
+        queryStr =  urlGetRegisters '/?offset=' + this.paginationStart + '&limit=' + this.paginationStep + searchQuery
+        this.url = URLSERVER + queryStr
+
     },
-    getDataTable : function( url, createBtns ){
+    getDataTable : function( ){
+
          $.ajax({
-            url: url,
-            type: 'post',
+            url: this.url,
+            type: 'get',
             dataType: 'json',
             contentType: 'application/json',
             success: function (res) {
-                
-                var numAllRegisters = res.count;
-                
-                if( createBtns ){
-                    setTag.createButtons( numAllRegisters, listRegisters.searchBy, listRegisters.valueSearchBy );
-                }
 
-                setTag.setTable(res.data)
-        
-               document.getElementById('waintingAnimation').style.display = "none";
-               
-
+                setTag.setTable(res)
             },
-
-            data:  JSON.stringify ({'paginationStart': listRegisters.paginationStar ,
+            data: JSON.stringify ({'paginationStart' : listRegisters.paginationStar ,
                                     'paginationStep' : listRegisters.paginationStep ,
                                     'by'             : listRegisters.by,
                                     'order'          : listRegisters.order,
                                     'searchBy'       : listRegisters.searchBy,    
                                     'valueSearchBy'  : listRegisters.valueSearchBy
                                     })
-        }).done(function() {
-            document.getElementById('waintingAnimation').style.display = "none";
-        })
-        .fail(function() {
-            document.getElementById('waintingAnimation').style.display = "none";
-        })
-        .always(function() {
-            document.getElementById('waintingAnimation').style.display = "none";
-        }) ;
+
+        }).done(function() { document.getElementById('waintingAnimation').style.display = "none";
+        }).fail(function() { document.getElementById('waintingAnimation').style.display = "none";
+        }).always(function() { document.getElementById('waintingAnimation').style.display = "none";
+        });
        
     },
-    linkAddProvider: function(){
-        var catalog = document.getElementById('catalogName').value;
-        var url = '/'+ catalog +'/add';
-        window.open( url ,"_self"); 
-    },
-    actionButtonPagination: function( thisButton ){
+    buttons: {
+        getCountAllRegisters : function( ){
 
-        //Icono de espera
-        document.getElementById('waintingAnimation').style.display = "block";
-
-        //Set list
-        var url      =  document.getElementById('catalogName').value;
-
-        listRegisters.paginationStar = parseInt( thisButton.getAttribute('initL') ) ;
-
-        listRegisters.getDataTable( url, false )
+             $.ajax({
+                url: this.urlCount,
+                type: 'get',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (res) {
+                    
+                    listRegisters.buttons.create( res );
+            
+                }
         
-        //Behavior button
-        $(".button_pag").removeAttr("active");
-        $( thisButton ).attr('active','')
+            }).done(function() { document.getElementById('waintingAnimation').style.display = "none";
+            }).fail(function() { document.getElementById('waintingAnimation').style.display = "none";
+            }).always(function() { document.getElementById('waintingAnimation').style.display = "none";
+            });
+           
+        },
+        create: function( numAllRegisters ){
 
+            var filterBy = listRegisters.filterBy;
+            var valueSearchBy = listRegisters.valueSearchBy;
+            
+            var numOfButtons = Math.ceil( numAllRegisters/listRegisters.paginationStep ) ;
+            
+            var strTagAllButtons = '';
+            for(var b=0; b< numOfButtons ; b++ ){
+                var start = b * listRegisters.paginationStep ;
+                var numLebelButton = b + 1;
+                var isActive = b==0? 'active' : '';
+                strTagAllButtons += listRegisters.buttons.tagButton( start, numLebelButton, isActive )
+            }
+            document.getElementById('containerButtonsPagination').innerHTML = strTagAllButtons;                   
+        },
+        tagButton : function(init, numValueButton, isActive ){
+            return '<button initL="'+ init +'" onclick="listRegisters.buttons.actionClick(this)" class="button_pag" '+isActive+'>'+ numValueButton +'</button>';
+        },
+        actionClick: function( thisButton ){
+
+            //Icono de espera
+            document.getElementById('waintingAnimation').style.display = "block";
+
+            listRegisters.paginationStar = parseInt( thisButton.getAttribute('initL') ) ;
+
+            listRegisters.getDataTable();
+            
+            //Comportamiento visual del boton
+            $(".button_pag").removeAttr("active");
+            $( thisButton ).attr('active','')
+
+        }
     },
-    
-
-
     initSearch : function() {
         document.getElementById('waintingAnimation').style.display = "block";
         
-        var searchBy      = $('#searchRegisterSelect').val();
-        var valueSearchBy = $('#searchRegisterField').val();
-        var url = document.getElementById('catalogName').value;
-
-        listRegisters.paginationStar = 0;
-        listRegisters.searchBy       = $('#searchRegisterSelect').val();  
-        listRegisters.valueSearchBy  = $('#searchRegisterField').val();
+        this.paginationStar = 0;
+        this.searchBy       = $('#searchRegisterSelect').val();  
+        this.valueSearchBy  = $('#searchRegisterField').val();
         
-        listRegisters.getDataTable( url, true  );
+        this.getDataTable();
+        this.buttons.getCountAllRegisters(); //Cuando obtiene este numero crea los botones de paginacion
         
     },
-
     init : function(){
 
         document.getElementById('waintingAnimation').style.display = "block";
 
-        //Set values for init pagination
-        listRegisters.paginationStar = 0;
-        listRegisters.searchBy       = '';  
-        listRegisters.valueSearchBy  = '';
+        //Valores iniciales para la lista principal
+        this.paginationStar = 0;
+        this.searchBy       = '';  
+        this.valueSearchBy  = '';
+        this.url = document.getElementById('catalogName').value;
 
-        var url = document.getElementById('catalogName').value;
-
-        listRegisters.getDataTable(  url, true );
+        this.getDataTable();
+        this.buttons.getCountAllRegisters(); //Cuando obtiene este numero crea los botones de paginacion
     }
 };
 
+
+
+
+
+
+
+
+
           
+
+
 
 
 //Para las secciones de agragar o editar             
@@ -135,7 +169,7 @@ var POSTRegister = {
                 }
 
                 notifyRegisters.set( 'true', message );
-                window.location.href = document.getElementById('titleFirstLink').href;
+                //window.location.href = document.getElementById('titleFirstLink').href;
             },
             data: dataJson
         });               

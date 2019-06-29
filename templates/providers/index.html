@@ -256,6 +256,9 @@
         </div>
         
         <input id="catalogName" type="hidden" value="{{ catalog }}" >
+        
+        <input id="urlGetRegisters" type="hidden" value="providers" >
+        <input id="urlCountAllRegisters" type="hidden" value="providers/count" >
 
     
         <!-- Jquery -->
@@ -316,9 +319,6 @@
                     `;
                     return strTr;
                 },
-                button : function(init, numValueButton, isActive, searchBy, valueSearchBy){
-                    return '<button initL="'+ init +'" searchBy="'+ searchBy +'" valueSearchBy="'+ valueSearchBy +'"  onclick="listRegisters.actionButtonPagination(this)" class="button_pag" '+isActive+'>'+ numValueButton +'</button>';
-                },
                 setTable : function(data){
                     
                     var strTRs = '<tr> <th> Nombre </th> <th> Descripción </th> </tr>';
@@ -331,20 +331,6 @@
 
                     document.getElementById('tableRegisters').innerHTML = strTRs;
                    
-                },
-                createButtons: function( numAllRegisters, filterBy, valueSearchBy ){
-                    
-                    var numOfButtons = Math.ceil( numAllRegisters/listRegisters.paginationStep ) ;
-                    listRegisters.numberOfButtons = numOfButtons ;
-                    
-                    var strAllButtons = '';
-                    for(var b=0; b< numOfButtons ; b++ ){
-                        var start = b * listRegisters.paginationStep ;
-                        var numLebelButton = b + 1;
-                        var isActive = b==0? 'active' : '';
-                        strAllButtons += setTag.button( start, numLebelButton, isActive, filterBy, valueSearchBy )
-                    }
-                    document.getElementById('containerButtonsPagination').innerHTML = strAllButtons;                   
                 }
                           
             };
