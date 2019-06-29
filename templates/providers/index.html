@@ -308,8 +308,9 @@
 
 
 
-
-            var setTag = {
+            /* Forma la tabla para este catalogo */
+            
+            var setTag = {  //El evento onclick quiza se cambie por el momento el metodo goToRegister se quito
                 tr : function( title, description, idRegister){
                     strTr = `
                         <tr idRegister="`+ idRegister +`" onclick="listRegisters.goToRegister(this);" >

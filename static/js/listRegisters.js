@@ -34,15 +34,8 @@ var listRegisters = {
             contentType: 'application/json',
             success: function (res) {
 
-                setTag.setTable(res)
-            },
-            data: JSON.stringify ({'paginationStart' : listRegisters.paginationStar ,
-                                    'paginationStep' : listRegisters.paginationStep ,
-                                    'by'             : listRegisters.by,
-                                    'order'          : listRegisters.order,
-                                    'searchBy'       : listRegisters.searchBy,    
-                                    'valueSearchBy'  : listRegisters.valueSearchBy
-                                    })
+                setTag.setTable(res) //Este objeto esta en el html del catalogo
+            }
 
         }).done(function() { document.getElementById('waintingAnimation').style.display = "none";
         }).fail(function() { document.getElementById('waintingAnimation').style.display = "none";
